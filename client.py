@@ -40,9 +40,10 @@ if __name__ == "__main__":
         if data:
             print(data)
             if data == "UPDATE":
-                info = OS + "\r\n"
-                info += HOSTNAME + "\r\n"
+                info = "UPDATE RESPONSE\r\n"
                 info += str(UUID) + "\r\n"
+                info += OS + "\r\n"
+                info += HOSTNAME + "\r\n"
                 sendData(s, info)
         closeSocket(s)
         time.sleep(random.randint(1,10))

