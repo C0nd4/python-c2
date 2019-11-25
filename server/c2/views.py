@@ -33,9 +33,12 @@ def commands(request, uuid):
 
 @csrf_exempt
 def update(request):
-    print("UUID: " + str(request.POST["UUID"]))
-    print("OS: " + str(request.POST["OS"]))
-    print("HOSTNAME: " + str(request.POST["HOSTNAME"]))
-#    print("REQUEST: " + str(request.POST))
-#    print("UUID: " + request.POST.get('UUID'))
+    uuid = request.POST["UUID"]
+    os = request.POST["OS"]
+    hostname = request.POST["HOSTNAME"]
+    current_client = client.objects.get(uuid=uuid)
+    current_client.os = os
+    current_client.hostname = hostname
+    current_client.ip = request.META['REMOTE_ADDR'] 
+    current_client.save()
     return HttpResponse()
