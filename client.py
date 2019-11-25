@@ -42,7 +42,7 @@ def httpPost():
     data = {'UUID':UUID,
             'OS':OS,
             'HOSTNAME':HOSTNAME}
-    r = requests.post(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/update"), params = data)
+    r = requests.post(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/update"), data = data)
 
 
 if __name__ == "__main__":

@@ -33,6 +33,9 @@ def commands(request, uuid):
 
 @csrf_exempt
 def update(request):
+    print("UUID: " + str(request.POST["UUID"]))
+    print("OS: " + str(request.POST["OS"]))
+    print("HOSTNAME: " + str(request.POST["HOSTNAME"]))
 #    print("REQUEST: " + str(request.POST))
 #    print("UUID: " + request.POST.get('UUID'))
     return HttpResponse()
