@@ -3,7 +3,7 @@ from django.db import models
 
 class command(models.Model):
     process = models.CharField(max_length=20)
-    arguments = models.CharField(max_length=1000)
+    arguments = models.CharField(max_length=1000, blank=True)
     
     def __str__(self):
         return self.process + " " + self.arguments
@@ -14,6 +14,10 @@ class client(models.Model):
     hostname = models.CharField(max_length=50)
     os = models.CharField(max_length=50)
     commands = models.ManyToManyField(command)
+    lastBeacon = models.IntegerField(default=0)
+    maxFails = models.IntegerField(default=10)
+    lowTime = models.IntegerField(default=1)
+    highTime = models.IntegerField(default=10)
 
     def __str__(self):
         return self.uuid

