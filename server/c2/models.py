@@ -1,5 +1,5 @@
 from django.db import models
-
+import django_tables2 as tables
 
 class command(models.Model):
     process = models.CharField(max_length=20)
@@ -21,3 +21,6 @@ class client(models.Model):
 
     def __str__(self):
         return self.uuid
+class ClientTable(tables.Table):
+    class Meta:
+        model = client

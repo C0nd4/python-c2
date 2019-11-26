@@ -68,3 +68,8 @@ def exfil(request):
     os.system("cat " + fileName + ".xwd | convert xwd:- png:- > " + fileName + ".png")
     os.remove(fileName + ".xwd")
     return HttpResponse()
+
+def clientTable(request):
+    queryset = client.objects.all()
+    table = ClientTable(queryset)
+    return render(request, 'clientTable.html', {'table': table})
