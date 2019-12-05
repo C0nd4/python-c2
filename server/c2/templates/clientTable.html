@@ -1,2 +1,8 @@
-{% load django_tables2 %}
-{% render_table table %}
+<body>
+<h1>List of Clients</h1>
+<ul>
+{% for client in client_list %}
+<li><a href="{% url 'Client_Details' client.uuid %}">{{ client.uuid }}</a></li>
+{% endfor %}
+</ul>
+</body>

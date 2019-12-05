@@ -7,4 +7,5 @@ urlpatterns = [
     path('update', views.update, name='Client_Update'),
     path('exfil', views.exfil, name='Client_Exfil'),
     path('clientTable', views.clientTable, name='Client_Tables'),
+    path('details/<str:uuid>', views.details, name='Client_Details'),
 ]

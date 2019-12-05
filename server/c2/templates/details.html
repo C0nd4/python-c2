@@ -1,0 +1,18 @@
+<body>
+	<h1>Client {{ client.uuid }}</h1>
+	<p>IP Address: {{ client.ip }}</p> 
+	<p>Operating System: {{ client.os }}</p>
+	<p>Hostname: {{ client.hostname }}</p>
+	<p>Last Beaconed: {{ lastBeacon }}</p>
+	<p>Low End Beacon Time: {{ client.lowTime }}</p> 
+	<p>High End Beacon Time: {{ client.highTime }}</p> 
+	<p>Maximum Beacon Fails: {{ client.maxFails }} </p>
+	<h3>Commands</h3>
+	<ul>
+	{% for command in commands %}
+	<li>{{ command.process }} : {{ command.arguments }}</a></li>
+	{% endfor %}
+	</ul>
+
+</body>
+
