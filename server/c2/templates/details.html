@@ -7,6 +7,16 @@
 	<p>Low End Beacon Time: {{ client.lowTime }}</p> 
 	<p>High End Beacon Time: {{ client.highTime }}</p> 
 	<p>Maximum Beacon Fails: {{ client.maxFails }} </p>
+	<h3>Add Command</h3>
+	{% block content %}
+	<form method="post">
+		{% csrf_token %}
+		<table>
+			{{ form.as_table }}
+		</table>
+		<input type="submit" value="Submit">
+	</form>
+	{% endblock %}
 	<h3>Commands</h3>
 	<ul>
 	{% for command in commands %}

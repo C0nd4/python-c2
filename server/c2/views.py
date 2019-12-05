@@ -10,6 +10,7 @@ import os
 import base64
 import time
 from datetime import datetime, timezone
+from .forms import *
 
 def clientTest(request):
     return HttpResponse(request.META['REMOTE_ADDR'])
@@ -78,4 +79,15 @@ def details(request,uuid):
     curClient = client.objects.get(uuid=uuid)
     lastBeacon = datetime.fromtimestamp(curClient.lastBeacon).strftime('%Y-%m-%d %H:%M:%S')
     commands = curClient.commands.all()
-    return render(request,'details.html', {'client':curClient, 'lastBeacon':lastBeacon,'commands':commands})
+    if request.method == "POST":
+        form = addCommandForm(request.POST)
+        if form.is_valid():
+            new_command = form.save()
+            new_command.save()
+            curClient = client.objects.get(uuid=uuid)
+            curClient.commands.add(new_command)
+            curClient.save()
+            return redirect('/client/' + uuid + '/details')
+    else:
+        form = addCommandForm()
+        return render(request,'details.html', {'form':form, 'client':curClient, 'lastBeacon':lastBeacon,'commands':commands})
