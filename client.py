@@ -12,12 +12,27 @@ import json
 import string
 import subprocess
 import base64
+import fcntl, sys
+
+lock_file = '/var/lock/program.lock'
+if not os.path.exists(lock_file):
+    os.mknod(lock_file)
+fp = open(lock_file, 'r+')
+try:
+    UUID = fp.read()
+    if not str(UUID):
+        UUID = uuid.uuid1()
+        fp.seek(0)
+        fp.write(str(UUID))
+        fp.truncate()
+    fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
+except IOError:
+    sys.exit(0)
 
 SERVER_IP = "localhost"
 SERVER_PORT = 8000
 BUFFER_SIZE = 2048
 OS = subprocess.Popen("lsb_release -d | cut -d ':' -f2", shell=True, stdout = subprocess.PIPE).communicate()[0].strip()
-UUID = uuid.uuid1()
 HOSTNAME = node().strip()
 MAX_FAILS = 10
 failCount = 0
